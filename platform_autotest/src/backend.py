@@ -9,8 +9,9 @@ from flask import Flask, escape, request
 from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
 
-
 # app实例
+from jenkinsapi.jenkins import Jenkins
+
 app = Flask(__name__)
 
 # restful实例
@@ -26,22 +27,54 @@ db = SQLAlchemy(app)
 
 # fake db
 app.config['db'] = []
+app.config['jenkins'] = Jenkins(
+    'http://192.168.0.245:8080/',
+    username='admin',
+    password='118705f9853e42af406f8f8a2146681e43'
+    # password='admin'
+)
+
 
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
 
-class TestCase_(db.Model):
+
+class TestService(db.Model):
+    __tablename__ = 'testservice'
+    id = db.Column(db.Integer, primary_key=True)
+    servicename = db.Column(db.String(80), unique=True, nullable=False)
+    description = db.Column(db.String(120), nullable=True)
+
+    testcase_id = db.Column(db.Integer, db.ForeignKey('testcase.id'), nullable=False)
+    testcase = db.relationship('TestCase', backref=db.backref('testservice', lazy=True))
+
+    def __repr__(self):
+        return '<data_object TestService>'
+
+
+class TestCase(db.Model):
+    __tablename__ = 'testcase'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(120), nullable=True)
     steps = db.Column(db.String(1024), nullable=True)
-    #
-    # testserver_id = db.Column(db.Integer, db.ForeignKey('testserver_.id'), nullable=True)
-    # testserver = db.relationship('TestService_', backref=db.backref('testcase_', lazy=True))
+
+    # task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=False)
+    # task = db.relationship('Task', backref=db.backref('testcase', lazy=True))
 
     def __repr__(self):
-        return '<TestCase %r>' % self.name
+        return '<data_object TestCase>'
+
+
+class Task(db.Model):
+    __tablename__ = 'task'
+    id = db.Column(db.Integer, primary_key=True)
+    testcases = db.Column(db.String(1024), nullable=True)
+
+    def __repr__(self):
+        return '<data_object Task>'
+
 
 class TestCaseService(Resource):
     def get(self):
@@ -56,11 +89,11 @@ class TestCaseService(Resource):
         if var_args:
             if int(var_args) < 0:
                 var_args = -int(var_args)
-                testcases: List[TestCase_] = TestCase_.query.filter(TestCase_.id == str(var_args)).first()
+                testcases: List[TestCase] = TestCase.query.filter(TestCase.id == str(var_args)).first()
                 db.session.delete(testcases)
                 db.session.commit()
             else:
-                testcases: List[TestCase_] = TestCase_.query.filter(TestCase_.id == var_args)
+                testcases: List[TestCase] = TestCase.query.filter(TestCase.id == var_args)
                 res = [{
                     'id': testcase.id,
                     'name': testcase.name,
@@ -71,7 +104,7 @@ class TestCaseService(Resource):
                     'body': res
                 }
         else:
-            testcases: List[TestCase_] = TestCase_.query.all()
+            testcases: List[TestCase] = TestCase.query.all()
             res = [{
                 'id': testcase.id,
                 'name': testcase.name,
@@ -81,7 +114,6 @@ class TestCaseService(Resource):
             return {
                 'body': res
             }
-
 
     def post(self):
         """
@@ -93,7 +125,7 @@ class TestCaseService(Resource):
         var_args = req['id'] if "id" in req else ''
         if var_args:
             # 更新方法方法一
-            TestCase_.query.filter_by(id=var_args).update({
+            TestCase.query.filter_by(id=var_args).update({
                 'name': req['name'],
                 'description': req['description'],
                 'steps': json.dumps(req['steps'])
@@ -105,36 +137,85 @@ class TestCaseService(Resource):
             # testcases.steps = json.dumps(req['steps']
             db.session.commit()
         else:
-            testcase=TestCase_(
+            testcase = TestCase(
                 name=request.json.get('name'),
                 description=request.json.get('description'),
                 steps=json.dumps(request.json.get('steps'))
-                )
+            )
             db.session.add(testcase)
             db.session.commit()
         return 'ok'
 
-# class TestService_(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     servicename = db.Column(db.String(80), unique=True, nullable=False)
-#     description = db.Column(db.String(120), nullable=True)
-#     steps = db.Column(db.String(1024), nullable=True)
-#
-#     def __repr__(self):
-#         return '<TestService_ %r>' % self.name
 
 class TaskService(Resource):
     def get(self):
-        pass
+        id = request.args.get('id')
+        if id:
+            task = Task.query.filter_by(id=id).first()
+            return {
+                'msg': 'ok',
+                'body': json.loads(task.testcases)
+            }
+        else:
+            tasks = Task.query.all()
+            return {
+                'msg': 'ok',
+                'body': [json.loads(task.testcases) for task in tasks]
+            }
+
+    def post(self):
+        """
+        上传测试用例，更新用例 /task.json {'testcases': [1,2,3,4]}
+        :return:
+        """
+        testcase_id = request.json.get('testcases')
+        task = Task(testcases=json.dumps(testcase_id))
+        print(task)
+        db.session.add(task)
+        db.session.commit()
+        return {'msg': 'ok'}
+
+    def put(self):
+        id = request.json.get('id')
+        if id:
+            task = Task.query.filter_by(id=id).first()
+            testcases_info = []
+            # 通过task数据对象，获取对应的testcases_id；再通过testcase_id获取testcase表中的数据信息
+            for id in json.loads(task.testcases):
+                testcase = TestCase.query.filter_by(id=id).first()
+                case_info = {
+                    'name': testcase.name,
+                    'steps': testcase.steps
+                }
+                testcases_info.append(case_info)
+
+            task_info = {
+                'id': task.id,
+                'testcases': testcases_info
+            }
+            jenkins: Jenkins = app.config['jenkins']
+            jenkins['flask_to_jenkins'].invoke(
+                build_params={
+                    'task': json.dumps(task_info)
+                })
+            return {
+                'msg': 'ok'
+            }
+
 
 class ReportService(Resource):
     def get(self):
+        """
+        通过jenkins构建后操作，及jenkinsapi获取构建任务后的信息
+        :return:
+        """
         pass
+
+
 
 api.add_resource(TestCaseService, '/testcase')
 api.add_resource(TaskService, '/task')
 api.add_resource(ReportService, '/report')
-
 
 if __name__ == '__main__':
     app.run(debug=True)
