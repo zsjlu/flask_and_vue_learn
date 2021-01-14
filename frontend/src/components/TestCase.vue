@@ -153,6 +153,7 @@
 
 <script>
   export default {
+    'name': 'TestCase',
     data: () => ({
       dialog: false,
       dialogDelete: false,
