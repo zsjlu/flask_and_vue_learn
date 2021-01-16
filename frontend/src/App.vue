@@ -1,13 +1,13 @@
 <template>
   <div id="app">
     <div id="nav" >
-      <v-app-bar app color="primary" dark>
+      <v-app-bar app color="primary" dark clipped-left>
         <router-link to="/">Home</router-link> |
         <router-link to="/about">About</router-link>
         <router-link to="/testcase">Testcasce</router-link>
       </v-app-bar>
     </div>
-    <v-navigation-drawer app>
+    <v-navigation-drawer app clipped>
       <Nav></Nav>
     </v-navigation-drawer>
     <v-main>
