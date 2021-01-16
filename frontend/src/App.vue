@@ -1,12 +1,32 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+    <div id="nav" >
+      <v-app-bar app color="primary" dark>
+        <router-link to="/">Home</router-link> |
+        <router-link to="/about">About</router-link>
+        <router-link to="/testcase">Testcasce</router-link>
+      </v-app-bar>
     </div>
-    <router-view/>
+    <v-navigation-drawer app>
+      <Nav></Nav>
+    </v-navigation-drawer>
+    <v-main>
+    <v-container fluid>
+      <router-view/>
+    </v-container>
+    </v-main>
   </div>
 </template>
+
+<script>
+import Nav from './components/Nav'
+export default {
+  name: "App",
+  components:{
+    Nav
+  }
+}
+</script>
 
 <style lang="scss">
 #app {
@@ -18,7 +38,7 @@
 }
 
 #nav {
-  padding: 30px;
+  // padding: 30px;
 
   a {
     font-weight: bold;
