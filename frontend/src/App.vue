@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" data-app>
     <div id="nav" >
       <v-app-bar app color="primary" dark clipped-left>
         <router-link to="/">Home</router-link> |
@@ -11,7 +11,7 @@
       <Nav></Nav>
     </v-navigation-drawer>
     <v-main>
-    <v-container fluid>
+    <v-container fluid app>
       <router-view/>
     </v-container>
     </v-main>

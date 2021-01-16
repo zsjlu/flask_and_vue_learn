@@ -6,6 +6,7 @@ import json
 from typing import List
 
 from flask import Flask, escape, request
+from flask_cors import CORS
 from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
 
@@ -13,7 +14,7 @@ from flask_sqlalchemy import SQLAlchemy
 from jenkinsapi.jenkins import Jenkins
 
 app = Flask(__name__)
-
+CORS(app)
 # restful实例
 api = Api(app)
 
@@ -27,12 +28,12 @@ db = SQLAlchemy(app)
 
 # fake db
 app.config['db'] = []
-app.config['jenkins'] = Jenkins(
-    'http://192.168.0.245:8080/',
-    username='admin',
-    password='118705f9853e42af406f8f8a2146681e43'
-    # password='admin'
-)
+# app.config['jenkins'] = Jenkins(
+#     'http://192.168.0.245:8080/',
+#     username='admin',
+#     password='118705f9853e42af406f8f8a2146681e43'
+#     # password='admin'
+# )
 
 
 @app.route('/')
