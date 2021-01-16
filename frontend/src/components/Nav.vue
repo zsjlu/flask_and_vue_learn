@@ -1,8 +1,5 @@
 <template>
-  <v-card
-    class="mx-auto"
-    max-width="500"
-  >
+  <v-card class="mx-auto" max-width="500">
     <!-- <v-toolbar
       color="teal"
       dark
@@ -16,7 +13,7 @@
       <v-btn icon>
         <v-icon>mdi-dots-vertical</v-icon>
       </v-btn>
-    </v-toolbar> -->
+    </v-toolbar>-->
 
     <v-list>
       <v-list-group
@@ -32,10 +29,7 @@
           </v-list-item-content>
         </template>
 
-        <v-list-item
-          v-for="child in item.items"
-          :key="child.title"
-        >
+        <v-list-item v-for="child in item.items" :key="child.title" :to="child.to">
           <v-list-item-content>
             <v-list-item-title v-text="child.title"></v-list-item-title>
           </v-list-item-content>
@@ -46,52 +40,51 @@
 </template>
 
 <script>
-  export default {
-    name: "Nav",
-    data: () => ({
-      items: [
-        {
-          action: 'mdi-ticket',
-          items: [{ title: 'List Item' }],
-          title: 'Attractions',
-        },
-        {
-          action: 'mdi-silverware-fork-knife',
-          active: true,
-          items: [
-            { title: 'Breakfast & brunch' },
-            { title: 'New American' },
-            { title: 'Sushi' },
-          ],
-          title: 'Dining',
-        },
-        {
-          action: 'mdi-school',
-          items: [{ title: 'List Item' }],
-          title: 'Education',
-        },
-        {
-          action: 'mdi-run',
-          items: [{ title: 'List Item' }],
-          title: 'Family',
-        },
-        {
-          action: 'mdi-bottle-tonic-plus',
-          items: [{ title: 'List Item' }],
-          title: 'Health',
-        },
-        {
-          action: 'mdi-content-cut',
-          items: [{ title: 'List Item' }],
-          title: 'Office',
-        },
-        {
-          action: 'mdi-tag',
-          items: [{ title: 'List Item' }],
-          title: 'Promotions',
-        },
-      ],
-    }),
-  }
+export default {
+  name: "Nav",
+  data: () => ({
+    items: [
+      {
+        action: "mdi-ticket",
+        active: true,
+        items: [
+          { title: "测试用例管理", to: "/testcase" },
+          { title: "测试用例分组", to: "/" }
+        ],
+        title: "测试用例"
+      },
+      {
+        action: "mdi-silverware-fork-knife",
+        items: [{ title: "测试报告管理" }],
+        title: "测试报告"
+      },
+      {
+        action: "mdi-school",
+        items: [{ title: "List Item" }],
+        title: "Education"
+      },
+      {
+        action: "mdi-run",
+        items: [{ title: "List Item" }],
+        title: "Family"
+      },
+      {
+        action: "mdi-bottle-tonic-plus",
+        items: [{ title: "List Item" }],
+        title: "Health"
+      },
+      {
+        action: "mdi-content-cut",
+        items: [{ title: "List Item" }],
+        title: "Office"
+      },
+      {
+        action: "mdi-tag",
+        items: [{ title: "List Item" }],
+        title: "Promotions"
+      }
+    ]
+  })
+};
 </script>
 
