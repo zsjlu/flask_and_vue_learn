@@ -3,7 +3,7 @@
     <div id="nav" >
       <v-app-bar app color="primary" dark clipped-left>
         <router-link to="/">Home</router-link> |
-        <router-link to="/about">About</router-link>
+        <!-- <router-link to="/about">About</router-link> -->
         <router-link to="/testcase">Testcasce</router-link>
       </v-app-bar>
     </div>
@@ -42,7 +42,7 @@ export default {
 
   a {
     font-weight: bold;
-    color: #2c3e50;
+    color: #cdd3da;
 
     &.router-link-exact-active {
       color: #42b983;

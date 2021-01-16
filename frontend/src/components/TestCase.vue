@@ -9,7 +9,7 @@
       <v-toolbar
         flat
       >
-        <v-toolbar-title>My CRUD</v-toolbar-title>
+        <v-toolbar-title>案例管理</v-toolbar-title>
         <v-divider
           class="mx-4"
           inset
